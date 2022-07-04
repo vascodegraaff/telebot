@@ -4,12 +4,13 @@ import (
 	// "errors"
 	"bytes"
 	"encoding/json"
+	"example/user/hello/controllers"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
-	"github.com/robfig/cron/v3"
+	// "github.com/robfig/cron/v3"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -58,36 +59,18 @@ func PostMood(mood int, bot *tgbotapi.BotAPI) {
 func main(){
 
 	bot, err := tgbotapi.NewBotAPI("5366512490:AAFNjdosYKeQofgp4BdI0ehUissp7-sIGRM")
-
-	c := cron.New()
-	
-
-	// Request mood at 9 am everyday
-	c.AddFunc("0 9 * * *", func() {
-		RequestMood(bot)
-	})
-
-	// Request mood at 11 pm everyday
-	c.AddFunc("0 23 * * *", func() {
-		RequestMood(bot)
-	})
-
-	c.Start()
-	
+	bot.Debug = true
 	if err != nil {
 		log.Panic(err)
 	}
-
-	bot.Debug = true
-
 	log.Printf("Authorized on account %s", bot.Self.UserName)
+
+	controllers.SetJobs(bot)
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
-
 	updates := bot.GetUpdatesChan(u)
-	
 
 	// Loop through each update.
 	for update := range updates {
